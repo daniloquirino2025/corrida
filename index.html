@@ -500,7 +500,7 @@
         document.getElementById('btnStart').disabled = true;
     }
 
-    // Função auxiliar para formatar a data como DD/MM
+    // FunÃ§Ã£o auxiliar para formatar a data como DD/MM
     function formatDate(date) {
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -517,8 +517,8 @@
         const blockIdx = programBlocks.findIndex(b => currentWeek >= b.start && currentWeek <= b.end);
         const block = programBlocks[blockIdx];
 
-        // Mapeamento dos dias da semana com deslocamento em relação à data base (16/06 era uma terça-feira)
-        // Segunda vira o dia anterior à largada (-1), Terça é 0, etc.
+        // Mapeamento dos dias da semana com deslocamento em relaÃ§Ã£o Ã  data base (16/06 era uma terÃ§a-feira)
+        // Segunda vira o dia anterior Ã  largada (-1), TerÃ§a Ã© 0, etc.
         const daysSetup = [
             { id: "seg", name: "Segunda-feira", type: "run", title: "Corrida Estruturada", desc: block.runDesc, dayOffset: -1 },
             { id: "ter", name: "Terca-feira", type: "walk", title: "Caminhada de Habito", desc: "Caminhada leve de 30 a 40 minutos para manter o corpo em movimento.", dayOffset: 0 },
@@ -539,7 +539,7 @@
         daysSetup.forEach(d => {
             const dayKey = `${currentWeek}_${d.id}`;
             
-            // Calcula a data exata para este dia específico desta semana
+            // Calcula a data exata para este dia especÃ­fico desta semana
             // Cada semana adiciona 7 dias multiplicados pelo index (Semana 1 adiciona 0 semanas)
             const weeksOffsetInDays = (currentWeek - 1) * 7;
             const totalDaysOffset = weeksOffsetInDays + d.dayOffset;
@@ -550,7 +550,7 @@
 
             const isChecked = checks[dayKey] ? "checked" : "";
             
-            // Verifica se este card corresponde à data de hoje no mundo real para aplicar destaque
+            // Verifica se este card corresponde Ã  data de hoje no mundo real para aplicar destaque
             const isToday = (formattedDateString === realTodayString) ? "today" : "";
             
             const cardClass = `day-card ${isChecked ? 'checked' : ''} ${isToday}`;
