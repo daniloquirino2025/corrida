@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missao 10K - Danilo Quirino</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #202024;
+            --primary: #00b37e;
+            --primary-hover: #00875f;
+            --text-color: #e1e1e6;
+            --text-muted: #8d8d99;
+            --accent: #fba94c;
+            --danger: #f75a68;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #29292e;
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 2.3rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .user-badge {
+            display: inline-block;
+            background-color: #29292e;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            color: var(--accent);
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        /* Container do Cronometro */
+        .timer-panel {
+            background: linear-gradient(135deg, #202024, #29292e);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 2px solid var(--primary);
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: var(--text-color);
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(0, 179, 126, 0.3);
+        }
+
+        .timer-status {
+            font-size: 1.4rem;
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 15px;
+            min-height: 32px;
+        }
+
+        .timer-controls button {
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.2s;
+        }
+
+        .timer-controls button:hover { background-color: var(--primary-hover); }
+        .timer-controls button.stop { background-color: var(--danger); }
+
+        /* Controles de Peso e Semana */
+        .tracking-widgets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .widget-box {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .widget-box label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="number"], select {
+            background-color: #121214;
+            color: var(--text-color);
+            border: 1px solid #29292e;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .btn-save {
+            background-color: #29292e;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-save:hover { background-color: var(--primary); color: #fff; }
+
+        /* Lista de Dias */
+        .day-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .day-card {
+            background-color: var(--card-bg);
+            padding: 18px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--text-muted);
+            transition: opacity 0.3s;
+        }
+
+        .day-card.today {
+            border: 1px dashed var(--accent);
+            box-shadow: 0 0 15px rgba(251, 169, 76, 0.1);
+        }
+
+        .day-card.checked {
+            border-left-color: var(--primary) !important;
+            opacity: 0.5;
+        }
+
+        .day-card.checked .day-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .day-left-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .checkbox-container {
+            width: 25px;
+            height: 25px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: #121214;
+            border: 2px solid #29292e;
+            border-radius: 4px;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 8px;
+            top: 4px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after { display: block; }
+
+        .day-details h3 {
+            font-size: 1.15rem;
+            margin-bottom: 4px;
+        }
+
+        .day-details p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .bg-run { background-color: rgba(0, 179, 126, 0.15); color: var(--primary); }
+        .bg-walk { background-color: rgba(251, 169, 76, 0.15); color: var(--accent); }
+
+        .btn-load-timer {
+            background-color: #29292e;
+            color: var(--text-color);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+        .btn-load-timer:hover { background-color: #323238; }
+
+        .date-span {
+            font-size: 0.85rem;
+            background-color: #121214;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            margin-left: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid #29292e;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Danilo Quirino - Rumo aos 10K</h1>
+        <div class="user-badge">30 anos | 1,65m | Meta: Construcao de Habito Diario</div>
+    </header>
+
+    <!-- Painel de Treino / Cronometro Ativo -->
+    <div class="timer-panel">
+        <div id="timerStageTitle" style="font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted);">Cronometro de Treino</div>
+        <div class="timer-status" id="timerStatus">Selecione um treino de corrida abaixo</div>
+        <div class="timer-display" id="timerDisplay">00:00</div>
+        <div class="timer-controls">
+            <button id="btnStart" onclick="toggleTimer()" disabled>Iniciar Treino</button>
+            <button id="btnReset" class="stop" onclick="resetTimer()">Resetar</button>
+        </div>
+    </div>
+
+    <!-- Widgets de Acompanhamento -->
+    <div class="tracking-widgets">
+        <div class="widget-box">
+            <label for="weekSelect">Fase & Semana Atual:</label>
+            <select id="weekSelect" onchange="renderWeek()"></select>
+        </div>
+        <div class="widget-box">
+            <label id="labelPeso" for="inputPeso">Registrar Peso da Semana (kg):</label>
+            <div class="input-group">
+                <input type="number" id="inputPeso" step="0.1" placeholder="Ex: 78.0">
+                <button class="btn-save" onclick="saveWeight()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Atividades do Dia -->
+    <div class="day-list" id="dayListContainer"></div>
+
+    <footer>
+        <p>Saia de casa todos os dias. O habito precede a performance.</p>
+    </footer>
+</div>
+
+<script>
+    // Inicializa API de Audio Nativa do Navegador
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playBeep(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'run') {
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        } else if (type === 'walk') {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+            
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.frequency.setValueAtTime(440, audioCtx.currentTime);
+                gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc2.start();
+                osc2.stop(audioCtx.currentTime + 0.2);
+            }, 300);
+        } else {
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.8);
+        }
+    }
+
+    // Cronograma estruturado com as condicoes pedidas por voce
+    const programBlocks = [
+        { start: 1, end: 8, title: "Fase 1: Construindo Base para 5K", runDesc: "Intercalar: 1 min de trote leve / 2 min de caminhada. Repetir 7 vezes.", intervals: [ {m:'run', t:60}, {m:'walk', t:120}, {m:'run', t:60}, {m:'walk', t:120}, {m:'run', t:60}, {m:'walk', t:120}, {m:'run', t:60}, {m:'walk', t:120}, {m:'run', t:60}, {m:'walk', t:120}, {m:'run', t:60}, {m:'walk', t:120}, {m:'run', t:60}, {m:'walk', t:120} ] },
+        { start: 9, end: 14, title: "Fase 2: Consolidar 5K abaixo de 25 min", runDesc: "Corrida Continua Ritmo Forte: Meta 5km sem paradas em ritmo constante.", intervals: [{m:'run', t:1500}] },
+        { start: 15, end: 22, title: "Fase 3: Expansao de Volume ate 10K", runDesc: "Corrida de Volume: Ritmo confortavel focado em ganho de resistencia.", intervals: [{m:'run', t:2700}] },
+        { start: 23, end: 26, title: "Fase 4: Polimento, Pace e Velocidade nos 10K", runDesc: "Treino de Ritmo Alvo: Tiros de ritmo intercalados com trotes de recuperacao.", intervals: [ {m:'run', t:300}, {m:'walk', t:60}, {m:'run', t:300}, {m:'walk', t:60}, {m:'run', t:300}, {m:'walk', t:60}, {m:'run', t:300} ] }
+    ];
+
+    // Data de inicio absoluta do plano: 16/06/2026 (Uma Terca-feira)
+    const startDate = new Date(2026, 5, 16); // Mes baseado em 0 (Junho = 5)
+
+    let currentWeek = parseInt(localStorage.getItem('danilo_week')) || 1;
+    let weights = JSON.parse(localStorage.getItem('danilo_weights')) || {};
+    let checks = JSON.parse(localStorage.getItem('danilo_checks')) || {};
+
+    let timerInterval = null;
+    let activeIntervals = [];
+    let currentIntervalIndex = 0;
+    let timeRemaining = 0;
+    let isTimerRunning = false;
+
+    // Popula o seletor de semanas
+    const weekSelect = document.getElementById('weekSelect');
+    for (let w = 1; w <= 26; w++) {
+        let block = programBlocks.find(b => w >= b.start && w <= b.end);
+        let opt = document.createElement('option');
+        opt.value = w;
+        opt.innerText = `Semana ${w} (${block.title})`;
+        if (w === currentWeek) opt.selected = true;
+        weekSelect.appendChild(opt);
+    }
+
+    function saveWeight() {
+        const peso = document.getElementById('inputPeso').value;
+        if(peso) {
+            weights[currentWeek] = peso;
+            localStorage.setItem('danilo_weights', JSON.stringify(weights));
+            alert(`Peso da Semana ${currentWeek} salvo com sucesso!`);
+        }
+    }
+
+    function toggleCheck(dayKey) {
+        checks[dayKey] = document.getElementById(`chk-${dayKey}`).checked;
+        localStorage.setItem('danilo_checks', JSON.stringify(checks));
+        
+        const card = document.getElementById(`card-${dayKey}`);
+        if(checks[dayKey]) {
+            card.classList.add('checked');
+        } else {
+            card.classList.remove('checked');
+        }
+    }
+
+    function loadTimerData(dayName, runTitle, blockIdx) {
+        if (timerInterval) clearInterval(timerInterval);
+        isTimerRunning = false;
+        document.getElementById('btnStart').innerText = "Iniciar Treino";
+        document.getElementById('btnStart').disabled = false;
+
+        const block = programBlocks[blockIdx];
+        activeIntervals = JSON.parse(JSON.stringify(block.intervals));
+        currentIntervalIndex = 0;
+        timeRemaining = activeIntervals[0].t;
+
+        updateTimerDisplay();
+        updateTimerStatusText();
+    }
+
+    function updateTimerDisplay() {
+        const min = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+        const sec = (timeRemaining % 60).toString().padStart(2, '0');
+        document.getElementById('timerDisplay').innerText = `${min}:${sec}`;
+    }
+
+    function updateTimerStatusText() {
+        if (currentIntervalIndex >= activeIntervals.length) {
+            document.getElementById('timerStatus').innerText = "Treino Concluido! Excelente trabalho!";
+            return;
+        }
+        const current = activeIntervals[currentIntervalIndex];
+        const label = current.m === 'run' ? "CORRENDO (Trote Leve)" : "CAMINHANDO (Recuperacao)";
+        document.getElementById('timerStatus').innerText = `Etapa ${currentIntervalIndex + 1} de ${activeIntervals.length}: ${label}`;
+    }
+
+    function toggleTimer() {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        if (isTimerRunning) {
+            clearInterval(timerInterval);
+            document.getElementById('btnStart').innerText = "Retomar";
+            isTimerRunning = false;
+        } else {
+            document.getElementById('btnStart').innerText = "Pausar";
+            isTimerRunning = true;
+            
+            if (timeRemaining === activeIntervals[currentIntervalIndex].t) {
+                playBeep(activeIntervals[currentIntervalIndex].m);
+            }
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                if (timeRemaining <= 0) {
+                    currentIntervalIndex++;
+                    if (currentIntervalIndex < activeIntervals.length) {
+                        timeRemaining = activeIntervals[currentIntervalIndex].t;
+                        playBeep(activeIntervals[currentIntervalIndex].m);
+                        updateTimerStatusText();
+                    } else {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        document.getElementById('btnStart').disabled = true;
+                        document.getElementById('btnStart').innerText = "Concluido";
+                        playBeep('finish');
+                        updateTimerStatusText();
+                    }
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+    }
+
+    function resetTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        isTimerRunning = false;
+        document.getElementById('btnStart').innerText = "Iniciar Treino";
+        document.getElementById('timerDisplay').innerText = "00:00";
+        document.getElementById('timerStatus').innerText = "Selecione um treino de corrida abaixo";
+        document.getElementById('btnStart').disabled = true;
+    }
+
+    // Função auxiliar para formatar a data como DD/MM
+    function formatDate(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        return `${day}/${month}`;
+    }
+
+    function renderWeek() {
+        currentWeek = parseInt(document.getElementById('weekSelect').value);
+        localStorage.setItem('danilo_week', currentWeek);
+
+        document.getElementById('inputPeso').value = weights[currentWeek] || "";
+        document.getElementById('labelPeso').innerText = `Registrar Peso da Semana ${currentWeek} (kg):`;
+
+        const blockIdx = programBlocks.findIndex(b => currentWeek >= b.start && currentWeek <= b.end);
+        const block = programBlocks[blockIdx];
+
+        // Mapeamento dos dias da semana com deslocamento em relação à data base (16/06 era uma terça-feira)
+        // Segunda vira o dia anterior à largada (-1), Terça é 0, etc.
+        const daysSetup = [
+            { id: "seg", name: "Segunda-feira", type: "run", title: "Corrida Estruturada", desc: block.runDesc, dayOffset: -1 },
+            { id: "ter", name: "Terca-feira", type: "walk", title: "Caminhada de Habito", desc: "Caminhada leve de 30 a 40 minutos para manter o corpo em movimento.", dayOffset: 0 },
+            { id: "qua", name: "Quarta-feira", type: "run", title: "Corrida Estruturada", desc: block.runDesc, dayOffset: 1 },
+            { id: "qui", name: "Quinta-feira", type: "walk", title: "Caminhada de Habito", desc: "Caminhada leve de 30 a 40 minutos focado na recuperacao articular ativa.", dayOffset: 2 },
+            { id: "sex", name: "Sexta-feira", type: "run", title: "Corrida Estruturada", desc: block.runDesc, dayOffset: 3 },
+            { id: "sab", name: "Sabado", type: "walk", title: "Caminhada de Habito", desc: "Caminhada moderada de 40 minutos pelas ruas para fixar a rotina.", dayOffset: 4 },
+            { id: "dom", name: "Domingo", type: "walk", title: "Caminhada Regenerativa", desc: "Caminhada leve livre de 30 minutos apenas para nao ficar em casa.", dayOffset: 5 }
+        ];
+
+        // Pega a data de hoje para destacar visualmente o card atual
+        const realToday = new Date();
+        const realTodayString = formatDate(realToday);
+
+        const container = document.getElementById('dayListContainer');
+        container.innerHTML = "";
+
+        daysSetup.forEach(d => {
+            const dayKey = `${currentWeek}_${d.id}`;
+            
+            // Calcula a data exata para este dia específico desta semana
+            // Cada semana adiciona 7 dias multiplicados pelo index (Semana 1 adiciona 0 semanas)
+            const weeksOffsetInDays = (currentWeek - 1) * 7;
+            const totalDaysOffset = weeksOffsetInDays + d.dayOffset;
+            
+            const currentDayDate = new Date(startDate);
+            currentDayDate.setDate(startDate.getDate() + totalDaysOffset);
+            const formattedDateString = formatDate(currentDayDate);
+
+            const isChecked = checks[dayKey] ? "checked" : "";
+            
+            // Verifica se este card corresponde à data de hoje no mundo real para aplicar destaque
+            const isToday = (formattedDateString === realTodayString) ? "today" : "";
+            
+            const cardClass = `day-card ${isChecked ? 'checked' : ''} ${isToday}`;
+            const borderStyle = d.type === 'run' ? "border-left-color: var(--primary)" : "border-left-color: var(--accent)";
+            
+            let actionButton = "";
+            if (d.type === 'run') {
+                actionButton = `<button class="btn-load-timer" onclick="loadTimerData('${d.name}', '${d.title}', ${blockIdx})">Carregar Cronometro</button>`;
+            }
+
+            container.innerHTML += `
+                <div class="${cardClass}" id="card-${dayKey}" style="${borderStyle}">
+                    <div class="day-left-content">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="chk-${dayKey}" onchange="toggleCheck('${dayKey}')" ${isChecked}>
+                            <span class="checkmark"></span>
+                        </label>
+                        <div class="day-details">
+                            <span class="day-title" style="font-weight: bold; font-size: 1.1rem; display: inline-block; margin-right: 5px;">${d.name}</span>
+                            <span class="date-span">${formattedDateString}</span>
+                            <div style="margin-top: 4px;">
+                                <span class="badge ${d.type === 'run' ? 'bg-run' : 'bg-walk'}">${d.title}</span>
+                            </div>
+                            <p style="margin-top: 6px;">${d.desc}</p>
+                        </div>
+                    </div>
+                    <div>
+                        ${actionButton}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // Executa a montagem inicial da tela
+    renderWeek();
+</script>
+
+</body>
+</html>
